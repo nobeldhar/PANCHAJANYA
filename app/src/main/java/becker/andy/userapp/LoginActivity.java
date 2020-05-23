@@ -9,7 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import java.util.Objects;
 
 import becker.andy.userapp.databinding.ActivityLoginBinding;
 import becker.andy.userapp.models.User;
@@ -44,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         viewModel.getProgressbar().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
+                closeKeyBoard();
                 binding.loading.setVisibility(View.VISIBLE);
             }
         });
@@ -61,6 +65,15 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void closeKeyBoard() {
+        View view = this.getCurrentFocus();
+        if(view!=null){
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert imm != null;
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
 

@@ -8,10 +8,12 @@
     tools:context=".SplashActivity">
 
     <ImageView
+        android:elevation="5dp"
+        android:scaleType="centerCrop"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_launcher"
-        android:layout_width="70dp"
-        android:layout_height="70dp"/>
+        android:src="@mipmap/ic_launcher_round"
+        android:layout_width="80dp"
+        android:layout_height="80dp"/>
 
 </RelativeLayout>

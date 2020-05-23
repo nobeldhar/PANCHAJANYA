@@ -20,4 +20,12 @@
     <string name="menu_remark">Remark</string>
     <string name="menu_leave">Leave</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="image_upload_label">Upload Image</string>
+    <string name="menu_uploads">Uploads</string>
+    <string name="menu_image_label">Image</string>
+    <string name="menu_audio_label">Audio</string>
+    <string name="menu_text_label">Text</string>
+
 </resources>

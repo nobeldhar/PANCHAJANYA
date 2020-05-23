@@ -2,6 +2,8 @@ package becker.andy.userapp.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class User {
     @SerializedName("mobile")
     String mobile;
@@ -18,15 +20,15 @@ public class User {
     String access_token;
     @SerializedName("message")
     String message;
-    @SerializedName("task")
-    String task;
+    @SerializedName("tasks")
+    List<String> task_list;
 
-    public String getTask() {
-        return task;
+    public List<String> getTask_list() {
+        return task_list;
     }
 
-    public void setTask(String task) {
-        this.task = task;
+    public void setTask_list(List<String> task_list) {
+        this.task_list = task_list;
     }
 
     public String getMessage() {

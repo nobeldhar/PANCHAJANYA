@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@id/nav_home">
 
     <fragment
         android:id="@+id/nav_home"
@@ -19,11 +19,7 @@
 
 
 
-    <fragment
-        android:id="@+id/nav_remark"
-        android:name="becker.andy.userapp.ui.remark.RemarkFragment"
-        android:label="@string/menu_remark"
-        tools:layout="@layout/fragment_remark" />
+
 
 
     <fragment
@@ -31,4 +27,19 @@
         android:name="becker.andy.userapp.ui.task.TaskFragment"
         android:label="@string/menu_task"
         tools:layout="@layout/fragment_task" />
+    <fragment
+        android:id="@+id/nav_upload_image"
+        android:name="becker.andy.userapp.ui.uploads.image.ImageUploadFragment"
+        android:label="@string/image_upload_label"
+        tools:layout="@layout/fragment_image_upload" />
+    <fragment
+        android:id="@+id/nav_upload_audio"
+        android:name="becker.andy.userapp.ui.uploads.audio.AudioUploadFragment"
+        android:label="Upload Audio"
+        tools:layout="@layout/fragment_audio_upload" />
+    <fragment
+        android:id="@+id/nav_upload_text"
+        android:name="becker.andy.userapp.ui.uploads.text.TextUploadFragment"
+        android:label="Upload Text"
+        tools:layout="@layout/fragment_text_upload" />
 </navigation>

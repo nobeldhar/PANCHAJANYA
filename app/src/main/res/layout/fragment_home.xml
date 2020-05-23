@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
+
     <data>
 
         <variable
@@ -7,26 +8,60 @@
             type="becker.andy.userapp.ui.home.HomeViewModel" />
     </data>
 
-    <RelativeLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.cardview.widget.CardView
-            android:layout_margin="30dp"
-            android:elevation="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <ToggleButton
-                android:layout_gravity="center"
-                android:id="@+id/toggle_button"
-                style="@style/myToggleButton"
-                android:layout_width="150dp"
-                android:layout_height="50dp"
-                android:stateListAnimator="@null"
-                android:elevation="7dp"
-                android:textOff="Start Day"
-                android:textOn="End Day" />
-        </androidx.cardview.widget.CardView>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_marginTop="30dp"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_gravity="center"
+                        android:src="@drawable/logo"
+                        android:layout_width="200dp"
+                        android:layout_height="200dp"/>
+                    <TextView
+                        android:layout_marginTop="5dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="25dp"
+                        android:gravity="center"
+                        android:text="Welcome to Panchajanya"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/toggle_layout"
+                    android:layout_marginTop="100dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp">
+                    <ToggleButton
+                        android:id="@+id/toggle_button"
+                        style="@style/myToggleButton"
+                        android:layout_width="300dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:elevation="7dp"
+                        android:textSize="20dp"
+                        android:stateListAnimator="@null"
+                        android:textOff="Start Day"
+                        android:textOn="End Day" />
+                </LinearLayout>
+            </LinearLayout>
+        <ProgressBar
+            android:layout_centerInParent="true"
+            android:id="@+id/loading_home"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:visibility="gone" />
     </RelativeLayout>
 </layout>

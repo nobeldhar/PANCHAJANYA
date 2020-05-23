@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:tools="http://schemas.android.com/tools"
+    android:color="@color/cardview_light_background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:ignore="PrivateResource">
+    <item>
+        <shape
+            android:shape="rectangle">
+            <gradient android:endColor="#FF8B3E"
+                android:startColor="#FF5500"
+                android:angle="90"/>
+            <size android:height="100dp"
+                android:width="200dp"/>
+            <stroke android:color="#FFFF8D53"
+                android:width="5dp"/>
+
+
+            <corners android:radius="30dp"/>
+
+        </shape>
+    </item>
+</ripple>

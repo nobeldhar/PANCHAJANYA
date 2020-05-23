@@ -14,9 +14,9 @@
             android:title="@string/menu_task" />
 
         <item
-            android:id="@+id/nav_remark"
+            android:id="@+id/nav_upload_image"
             android:icon="@drawable/ic_remark_black_24dp"
-            android:title="@string/menu_remark" />
+            android:title="@string/menu_uploads" />
 
         <item
             android:id="@+id/nav_leave"

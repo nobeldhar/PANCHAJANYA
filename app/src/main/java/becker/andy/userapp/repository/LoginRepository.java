@@ -1,5 +1,7 @@
 package becker.andy.userapp.repository;
 
+import android.util.Log;
+
 import becker.andy.userapp.models.User;
 import becker.andy.userapp.retrofit.ApiClient;
 import becker.andy.userapp.retrofit.ApiInterface;
@@ -12,6 +14,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginRepository {
+    private static final String TAG = "LoginRepository";
     private ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
     private SingleLiveEvent<String> loginResponse = new SingleLiveEvent<>();
     private SingleLiveEvent<User> userResponse = new SingleLiveEvent<>();
@@ -62,6 +65,8 @@ public class LoginRepository {
     }
 
     public void logoutUser(PrefConfig prefs) {
+
+        Log.d(TAG, "onLocationResult logoutUser: "+prefs.readUser().getAccess_token());
 
         Call<User> call = apiInterface.logoutUser(prefs.readUser().getAccess_token());
         call.enqueue(new Callback<User>() {

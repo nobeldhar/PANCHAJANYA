@@ -7,9 +7,12 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.navigation.Navigation;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,6 +66,7 @@ public class HomeViewModel extends ViewModel {
         userLocation.setDistance(String.valueOf(distance));
         userLocation.setStatus("Active");
 
+
         Log.d(TAG, "onLocationResult Distance:"+ distance);
 
         mainRepository.updateLocation(userLocation, prefs);
@@ -79,4 +83,6 @@ public class HomeViewModel extends ViewModel {
     public SingleLiveEvent<String> getLocationResponse() {
         return mainRepository.getLocationResponse();
     }
+
+
 }

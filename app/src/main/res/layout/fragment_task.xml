@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -9,45 +10,36 @@
             type="becker.andy.userapp.ui.task.TaskViewModel" />
     </data>
 
-    <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.cardview.widget.CardView
+        <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="30dp">
+            android:layout_margin="15dp"
+            tools:listitem="@layout/task"
+            android:id="@+id/task_recycler"
+            android:layout_height="match_parent"/>
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="30dp"
-                android:elevation="10dp">
+        <TextView
+            android:visibility="gone"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:gravity="center"
+            android:id="@+id/task_not_found"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:text="No Tasks found"
+            android:textSize="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:gravity="center"
-                        android:text="Tasks"
-                        android:textSize="20dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-
-                    <TextView
-                        android:layout_marginTop="20dp"
-                        android:id="@+id/tasks"
-                        android:textSize="17dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-        </androidx.cardview.widget.CardView>
+        <ProgressBar
+            android:id="@+id/loading_task"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone" />
 
 
     </RelativeLayout>

@@ -1,6 +1,7 @@
 package becker.andy.userapp;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,14 +10,13 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
-import android.os.PersistableBundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,10 +31,13 @@ import androidx.core.view.GravityCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -46,15 +49,12 @@ import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Objects;
-
 import becker.andy.userapp.models.User;
 import becker.andy.userapp.service.LocationService;
 import becker.andy.userapp.utils.PrefConfig;
 import becker.andy.userapp.viewmodel.HomeActivityViewModel;
-import becker.andy.userapp.viewmodel.LoginViewModel;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements NavController.OnDestinationChangedListener {
 
     private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;
     private static final int PERMISSIONS_REQUEST_ACCESS_LOCATION = 9002;
@@ -64,6 +64,7 @@ public class HomeActivity extends AppCompatActivity {
     private PrefConfig prefs;
     private DrawerLayout drawer;
     private ActionBarDrawerToggle mDToggle;
+    private BottomNavigationView bottomNav;
     private HomeActivityViewModel viewModel;
 
     @Override
@@ -76,7 +77,6 @@ public class HomeActivity extends AppCompatActivity {
         prefs = new PrefConfig(getSharedPreferences("pref_file", Context.MODE_PRIVATE));
 
         viewModel = new ViewModelProvider(this).get(HomeActivityViewModel.class);
-
 
         drawer = findViewById(R.id.drawer_layout);
 
@@ -101,23 +101,59 @@ public class HomeActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_leave,
-                R.id.nav_remark, R.id.nav_task)
+                R.id.nav_upload_image, R.id.nav_task)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setItemHorizontalTranslationEnabled(true);
+        NavigationUI.setupWithNavController(bottomNav, navController);
         NavigationUI.setupWithNavController(navigationView, navController);
+        navController.addOnDestinationChangedListener(this);
+
 
         viewModel.getLogoutResponse().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 if(s.equals("User Logged Out")){
+                    viewModel.onLogoutEnd(true);
                     logoutUser();
-                }else {
+                }else if (s.equals("Network Error!")){
+                    viewModel.onLogoutEnd(true);
                     Toast.makeText(HomeActivity.this,s,Toast.LENGTH_LONG).show();
+                } else {
+                    viewModel.onLogoutEnd(true);
+                    Toast.makeText(HomeActivity.this,s,Toast.LENGTH_LONG).show();
+                    Toast.makeText(HomeActivity.this,"Clear app data or Reinstall",Toast.LENGTH_LONG).show();
                 }
             }
         });
+    }
+
+    @Override
+    public void onDestinationChanged(@NonNull NavController controller,
+                                     @NonNull NavDestination destination,
+                                     @Nullable Bundle arguments) {
+        if(destination.getId() == R.id.nav_upload_image){
+            bottomNav.getMenu().getItem(0).setChecked(true);
+            bottomNav.setVisibility(View.VISIBLE);
+        }
+        else if(destination.getId()==R.id.nav_upload_audio||
+                destination.getId()==R.id.nav_upload_text){
+            bottomNav.setVisibility(View.VISIBLE);
+        }else{
+            bottomNav.setVisibility(View.GONE);
+        }
+
+
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
     }
 
     @Override
@@ -141,39 +177,68 @@ public class HomeActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.menu_logout:
-                viewModel.logoutUser(prefs);
+                viewModel.onLogoutClicked(true);
+                if(isNetworkConnected()){
+                    if(isMyServiceRunning(LocationService.class)){
+                        stopLocationService();
+                    }else {
+                        viewModel.logoutUser(prefs);
+                    }
+                }else {
+                    viewModel.onLogoutEnd(false);
+                }
+
             default:
                 return true;
         }
     }
 
+    private void stopLocationService() {
+        Intent serviceIntent = new  Intent(this, LocationService.class);
+        stopService(serviceIntent);
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                viewModel.logoutUser(prefs);
+            }
+        }, 5000);
+    }
+
     private void logoutUser() {
-        User user = new User();
-        prefs.writeUser(user);
+
         prefs.writeLoginStatus(false);
         prefs.writeToggleState(false);
 
-        Intent serviceIntent = new  Intent(this, LocationService.class);
-        stopService(serviceIntent);
+        User user = new User();
+        prefs.writeUser(user);
+
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
+
+
     private boolean isNetworkConnected() {
         ConnectivityManager conMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        if ( conMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED
-                || conMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED ) {
+        assert conMgr != null;
+        final NetworkInfo activeNetwork = conMgr.getActiveNetworkInfo();
+        if (activeNetwork != null && activeNetwork.isConnected()) {
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -193,19 +258,55 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void getLocationPermission() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION},
-                PERMISSIONS_REQUEST_ACCESS_LOCATION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                            Manifest.permission.RECORD_AUDIO,
+                            Manifest.permission.FOREGROUND_SERVICE},
+                    PERMISSIONS_REQUEST_ACCESS_LOCATION);
+        }else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.RECORD_AUDIO,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_LOCATION);
+        }
+
     }
 
     private boolean isLocationPermissionGranted() {
         if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED){
-            return ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this.getApplicationContext(),
                     Manifest.permission.ACCESS_COARSE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED;
+                    == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                        Manifest.permission.RECORD_AUDIO)
+                        == PackageManager.PERMISSION_GRANTED){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                return ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED
+                        &&
+                        ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                                Manifest.permission.FOREGROUND_SERVICE)
+                                == PackageManager.PERMISSION_GRANTED;
+            }
+            else
+                return true;
         }
         else {
             return false;
@@ -292,4 +393,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }
