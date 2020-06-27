@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -73,28 +74,7 @@ public class HomeFragment extends Fragment implements NetworkStateReciever.Netwo
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         binding.setViewmodel(viewModel);
 
-        homeActivityViewModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(HomeActivityViewModel.class);
-        homeActivityViewModel.getOnLogoutClicked().observe(getActivity(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
-                    Toast.makeText(getActivity(),"Logging out...", Toast.LENGTH_LONG).show();
-                    binding.loadingHome.setVisibility(View.VISIBLE);
-                    setClicked(false);
-                }
-            }
-        });
-        homeActivityViewModel.getOnLogoutEnd().observe(getActivity(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if(aBoolean)
-                    binding.loadingHome.setVisibility(View.GONE);
-                else {
-                    binding.loadingHome.setVisibility(View.GONE);
-                    Toast.makeText(getActivity(), "Network error!", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+
 
         activity = getActivity();
 
@@ -117,7 +97,15 @@ public class HomeFragment extends Fragment implements NetworkStateReciever.Netwo
         Objects.requireNonNull(getActivity()).registerReceiver(mNetworkStateReciever, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
 
-        viewModel.getLocationResponse().observe(getActivity(), new Observer<String>() {
+        return root;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        homeActivityViewModel = new ViewModelProvider(requireActivity()).get(HomeActivityViewModel.class);
+
+        viewModel.getLocationResponse().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 Log.d(TAG, "onChanged: ");
@@ -125,7 +113,27 @@ public class HomeFragment extends Fragment implements NetworkStateReciever.Netwo
             }
         });
 
-        return root;
+        homeActivityViewModel.getOnLogoutClicked().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    Toast.makeText(getActivity(),"Logging out...", Toast.LENGTH_LONG).show();
+                    binding.loadingHome.setVisibility(View.VISIBLE);
+                    setClicked(false);
+                }
+            }
+        });
+        homeActivityViewModel.getOnLogoutEnd().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean)
+                    binding.loadingHome.setVisibility(View.GONE);
+                else {
+                    binding.loadingHome.setVisibility(View.GONE);
+                    Toast.makeText(getActivity(), "Network error!", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     private void showAlert(final boolean isChecked) {

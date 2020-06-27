@@ -101,14 +101,10 @@ public class TextUploadFragment extends Fragment {
             public void onChanged(String s) {
                 setProgressVisibility(false);
                 if (s.contains("successfully")) {
-                    try {
-                        binding.remark.setText(null);
-                        viewModel.setUploadText(null);
-                        AlertDialog dialog = mADBuilder.create();
-                        dialog.show();
-                    } catch (Exception e) {
-
-                    }
+                    binding.remark.setText(null);
+                    viewModel.setUploadText(null);
+                    AlertDialog dialog = mADBuilder.create();
+                    dialog.show();
                 } else
                     Toast.makeText(getActivity(), s, Toast.LENGTH_LONG).show();
             }

@@ -46,6 +46,7 @@ public class LeaveFragment extends Fragment implements Observer<View> {
     private FragmentLeaveBinding binding;
     private PrefConfig prefs;
     private Activity activity;
+    private AlertDialog.Builder alBuiler;
     private Snackbar mSnackbar;
     private CoordinatorLayout coordinatorLayout;
 
@@ -56,8 +57,8 @@ public class LeaveFragment extends Fragment implements Observer<View> {
         View root = binding.getRoot();
 
         viewModel = new ViewModelProvider(this).get(LeaveViewModel.class);
-
         binding.setViewmodel(viewModel);
+
         prefs = new PrefConfig(Objects.requireNonNull(getActivity()).getSharedPreferences("pref_file", Context.MODE_PRIVATE));
         activity = getActivity();
         coordinatorLayout = root.findViewById(R.id.leave_coordinator);
@@ -83,7 +84,7 @@ public class LeaveFragment extends Fragment implements Observer<View> {
             }
         }).setActionTextColor(Color.GREEN);
 
-        final AlertDialog.Builder alBuiler = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
+        alBuiler = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
         alBuiler.setTitle("Successful");
         alBuiler.setMessage("Leave Submitted Successfully.!").setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -92,9 +93,16 @@ public class LeaveFragment extends Fragment implements Observer<View> {
             }
         });
 
+        binding.loadingLeave.setVisibility(View.GONE);
 
+        return root;
+    }
 
-        viewModel.getmLeave().observe(getActivity(), new Observer<String>() {
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        viewModel.getOnDateClick().observe(getViewLifecycleOwner(), this);
+        viewModel.getmLeave().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 closeKeyBoard();
@@ -105,36 +113,28 @@ public class LeaveFragment extends Fragment implements Observer<View> {
                 }
             }
         });
-        viewModel.getLeaveResponse().observe(getActivity(), new Observer<String>() {
+        viewModel.getLeaveResponse().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 binding.loadingLeave.setVisibility(View.GONE);
                 if(s.contains("successfully")){
-                    try {
-                        binding.to.setText(null);
-                        binding.from.setText(null);
-                        binding.noOfDays.setText(null);
-                        binding.reason.setText(null);
-                        viewModel.setFrom(null);
-                        viewModel.setTo(null);
-                        viewModel.setNo_of_days(null);
-                        viewModel.setReason(null);
-                        AlertDialog dialog = alBuiler.create();
-                        dialog.show();
+                    binding.to.setText(null);
+                    binding.from.setText(null);
+                    binding.noOfDays.setText(null);
+                    binding.reason.setText(null);
+                    viewModel.setFrom(null);
+                    viewModel.setTo(null);
+                    viewModel.setNo_of_days(null);
+                    viewModel.setReason(null);
+                    AlertDialog dialog = alBuiler.create();
+                    dialog.show();
 
-                    }catch (Exception e){
-
-                    }
                 }else
                     Toast.makeText(activity, s,Toast.LENGTH_LONG).show();
             }
         });
-
-        binding.loadingLeave.setVisibility(View.GONE);
-        viewModel.getOnDateClick().observe(getActivity(), this);
-
-        return root;
     }
+
     private void closeKeyBoard() {
         View view = Objects.requireNonNull(getActivity()).getCurrentFocus();
         if(view!=null){

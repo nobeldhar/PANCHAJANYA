@@ -171,7 +171,6 @@ public class AudioUploadFragment extends Fragment implements View.OnClickListene
         super.onActivityCreated(savedInstanceState);
 
 
-
         viewModel.getInputValidationLive().observe(getViewLifecycleOwner(), new androidx.lifecycle.Observer<String>() {
             @Override
             public void onChanged(String s) {
@@ -202,15 +201,12 @@ public class AudioUploadFragment extends Fragment implements View.OnClickListene
             public void onChanged(String s) {
                 setProgressVisibility(View.GONE);
                 if (s.contains("successfully")) {
-                    try {
-                        binding.mediaOptions.setVisibility(View.GONE);
-                        viewModel.setUri(null);
-                        viewModel.setMediaPlayer(null);
-                        AlertDialog dialog = mADBuilder.create();
-                        dialog.show();
-                    } catch (Exception e) {
+                    binding.mediaOptions.setVisibility(View.GONE);
+                    viewModel.setUri(null);
+                    viewModel.setMediaPlayer(null);
+                    AlertDialog dialog = mADBuilder.create();
+                    dialog.show();
 
-                    }
                 } else
                     Toast.makeText(getActivity(), s, Toast.LENGTH_LONG).show();
             }

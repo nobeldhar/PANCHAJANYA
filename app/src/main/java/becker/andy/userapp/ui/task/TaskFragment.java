@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -32,41 +33,37 @@ public class TaskFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_task,container,false);
         View root = binding.getRoot();
         viewModel = new ViewModelProvider(this).get(TaskViewModel.class);
-
         binding.setViewmodel(viewModel);
         prefs = new PrefConfig(Objects.requireNonNull(getActivity()).getSharedPreferences("pref_file", Context.MODE_PRIVATE));
-
-        try {
-            binding.loadingTask.setVisibility(View.VISIBLE);
-        }catch (Exception e){
-
-        }
         viewModel.getTasks(prefs);
-        viewModel.getTaskResponse().observe(getActivity(), new Observer<String>() {
+        binding.loadingTask.setVisibility(View.VISIBLE);
+
+        return root;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        viewModel.getTaskResponse().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                try {
-                    Toast.makeText(getActivity(), s, Toast.LENGTH_LONG).show();
-                    binding.loadingTask.setVisibility(View.GONE);
-                    binding.taskNotFound.setVisibility(View.VISIBLE);
-                }catch (Exception e){
-                }
+                Toast.makeText(getActivity(), s, Toast.LENGTH_LONG).show();
+                binding.loadingTask.setVisibility(View.GONE);
+                binding.taskNotFound.setVisibility(View.VISIBLE);
+
 
             }
         });
 
-        viewModel.getTaskList().observe(getActivity(), new Observer<List<String>>() {
+        viewModel.getTaskList().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
             @Override
             public void onChanged(List<String> strings) {
-                try {
-                    binding.loadingTask.setVisibility(View.GONE);
-                    binding.taskRecycler.setAdapter(new TaskAdapter(strings));
-                    binding.taskRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-                }catch (Exception e){
 
-                }
+                binding.loadingTask.setVisibility(View.GONE);
+                binding.taskRecycler.setAdapter(new TaskAdapter(strings));
+                binding.taskRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+
             }
         });
-        return root;
     }
 }
